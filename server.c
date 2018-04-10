@@ -6,24 +6,20 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
+typedef struct sockaddr_in address;
+
+void createServer(int port);
+
+int server_sockfd, server_len;
+address server_address;
+
 int main()
 {
-	int server_sockfd, client_sockfd;
+	int client_sockfd;
 	int server_len, client_len;
-	struct sockaddr_in server_address;
-	struct sockaddr_in client_address;
+	address client_address;
 
-	//create nameless socket for server
-	server_sockfd = socket(AF_INET, SOCK_STREAM, 0);
-
-	//socket name
-	server_address.sin_family = AF_INET;
-	server_address.sin_addr.s_addr = htonl(INADDR_ANY);
-	server_address.sin_port = htons(9734);	
-	server_len = sizeof(server_address);
-
-	bind(server_sockfd, (struct sockaddr *)&server_address, server_len);
-	listen(server_sockfd, 5);
+	createServer(9734);
 
 	while(1)
 	{
@@ -35,4 +31,18 @@ int main()
 		write(client_sockfd, &ch, 1);
 		close(client_sockfd);
 	}	
+}
+
+void createServer(int port)
+{
+	server_sockfd = socket(AF_INET, SOCK_STREAM, 0);
+
+	//socket name
+	server_address.sin_family = AF_INET;
+	server_address.sin_addr.s_addr = htonl(INADDR_ANY);
+	server_address.sin_port = htons(port);	
+	server_len = sizeof(server_address);
+
+	bind(server_sockfd, (struct sockaddr *)&server_address, server_len);
+	listen(server_sockfd, 5);
 }

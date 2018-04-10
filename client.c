@@ -12,7 +12,7 @@ int main()
 	int len;
 	struct sockaddr_in address;
 	int result;
-	char ch = 'C';
+	char ch = 'A';
 
 	//creates socket for client
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);	
