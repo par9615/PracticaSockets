@@ -5,7 +5,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
-#include <string>
+#include <cstring>
 #include <iostream>
 using namespace std;
 
@@ -13,7 +13,7 @@ typedef struct sockaddr_in sockaddr_in;
 typedef struct sockaddr sockaddr;
 
 void createServer(int port);
-string receiveMessage(int client);
+char* receiveMessage(int client);
 
 int server_sockfd, server_len;
 sockaddr_in server_address;
@@ -28,21 +28,13 @@ int main()
 
 	while(1)
 	{
-		string msg_out, msg_in;
-		msg_out.reserve(1024);
-		msg_in.reserve(1024);
+		char *msg_in;
+
 		printf("server waiting\n");
 		client_sockfd = accept(server_sockfd, (sockaddr *)&client_address, (unsigned int *)&client_len);
 		
-		
 		msg_in = receiveMessage(client_sockfd);
-		cout<<msg_in<<endl;
-
-		/*read(client_sockfd, &msg_in[0], 20);
-		cout.write(&msg_in[0], 100);	
-
-		msg_out = "hola, soy el server al cual acabas de enviar mensaje, te informo que tu mensaje fue recibido";	
-		write(client_sockfd, &msg_out[0], 10);*/
+		cout<<"Llego mensaje: "<<msg_in<<endl;
 
 		close(client_sockfd);
 	}	
@@ -63,19 +55,18 @@ void createServer(int port)
 	listen(server_sockfd, 5);
 }
 
-string receiveMessage(int client)
+char* receiveMessage(int client)
 {
-	string msg;
+	char* msg;
 	int len;
 	int unconverted_len;
 
+	//read text len
 	read(client, &unconverted_len, sizeof(unconverted_len));
 	len = ntohl(unconverted_len);
-	cout<<"len "<<len<<endl;
-	cout<<"unconverted len "<<unconverted_len<<endl;
-	msg.reserve(len);
-	read(client, &msg[0], len);
 
-	cout<<msg<<endl;
+	//read text
+	read(client, msg, len);	
+
 	return msg;
 }
