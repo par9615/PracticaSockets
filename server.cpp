@@ -23,6 +23,7 @@ void sendMessage(char* msg, int client);
 int server_sockfd, server_len, client_sockfd[MAXCLIENT], parameter[MAXCLIENT];
 sockaddr_in server_address;
 pthread_t tid[MAXCLIENT];
+char* username[MAXCLIENT];
 
 int main()
 {
@@ -53,14 +54,25 @@ int main()
 
 void* serveClient(void* arg)
 {
-	char* nickname;
+	char *nickname, *msg_in;
 	int n = *((int*)arg);
 
-
 	nickname = receiveMessage(client_sockfd[n]);
-	cout<<"El nickname del cliente "<<n<<" es "<<nickname<<endl;
-	char* arre = "arrea arre";
-	sendMessage(arre, client_sockfd[n]);
+	username[n] = nickname;
+	cout<<"El nickname del cliente "<<n<<" es "<<username[n]<<endl;
+
+	while(1)
+	{
+		nickname = receiveMessage(client_sockfd[n]);
+		msg_in = receiveMessage(client_sockfd[n]);
+		for(int i = 0; i < MAXCLIENT; i++)
+			if(i != n)
+			{
+				cout<<"entra"<<endl;
+				sendMessage(nickname, client_sockfd[i]);	
+				sendMessage(msg_in, client_sockfd[i]);		
+			}
+	}
 
 	close(client_sockfd[n]);
 

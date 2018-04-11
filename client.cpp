@@ -7,6 +7,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <string.h>
+#include <signal.h>
 using namespace std;
 
 typedef struct sockaddr_in sockaddr_in;
@@ -15,25 +16,60 @@ typedef struct sockaddr sockaddr;
 void createClient(int port);
 void sendMessage(char* msg);
 char* receiveMessage(int client);
+void* listener(void *arg);
 
 int sockfd, len;
 sockaddr_in address;
+pthread_t tid;
 
 int main()
 {
-	char nickname[1024];
-	char* msg_in;
+	char nickname[1024], msg_out[1024];
 	createClient(9734);
 
 	cout<<"Ingresa tu nickname"<<endl;
 	cin.getline(nickname, 1024);
 
 	sendMessage(nickname);
-	msg_in = receiveMessage(sockfd);
-	cout<<"El servidor dice: "<<msg_in<<endl;
+
+	pthread_create(&tid, NULL, listener, NULL);	
+
+	while(1)
+	{
+		cout<<"Escribe algo..."<<endl;
+		cin.getline(msg_out, 1024);
+
+		if(strcmp(msg_out, "exit") == 0)
+		{
+			pthread_kill(tid, SIGKILL);	
+			break;
+		}
+		else
+		{		
+			sendMessage(nickname);
+			sendMessage(msg_out);
+		}
+	}
+
+
+	pthread_join(tid, NULL);
 
 	close(sockfd);
 	exit(0);
+}
+
+void *listener(void *arg)
+{
+	char *msg_in, *from;
+	while(1)
+	{
+		from = receiveMessage(sockfd);	
+		msg_in = receiveMessage(sockfd);
+
+
+		cout<<from<<" dice:"<<endl;
+		cout<<msg_in<<endl;
+	}
 }
 
 void createClient(int port)
