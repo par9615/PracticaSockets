@@ -14,19 +14,23 @@ typedef struct sockaddr sockaddr;
 
 void createClient(int port);
 void sendMessage(char* msg);
+char* receiveMessage(int client);
 
 int sockfd, len;
 sockaddr_in address;
 
 int main()
 {
-	char msg_out[1024], msg_in[1024];
-
-	cout<<"Ingresa cadena"<<endl;
-	cin>>msg_out;
+	char nickname[1024];
+	char* msg_in;
 	createClient(9734);
 
-	sendMessage(msg_out);
+	cout<<"Ingresa tu nickname"<<endl;
+	cin.getline(nickname, 1024);
+
+	sendMessage(nickname);
+	msg_in = receiveMessage(sockfd);
+	cout<<"El servidor dice: "<<msg_in<<endl;
 
 	close(sockfd);
 	exit(0);
@@ -65,5 +69,22 @@ void sendMessage(char* msg)
 
 	//write text
 	write(sockfd, msg, len); 	
+}
+
+char* receiveMessage(int client)
+{
+	char* msg;
+	int len;
+	int unconverted_len;
+
+	//read text len
+	read(client, &unconverted_len, sizeof(unconverted_len));
+	len = ntohl(unconverted_len);
+	msg = (char*)malloc(len);
+
+	//read text
+	read(client, msg, len);	
+
+	return msg;
 }
 
