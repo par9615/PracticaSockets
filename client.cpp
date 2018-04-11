@@ -39,20 +39,12 @@ int main()
 		cout<<"Escribe algo..."<<endl;
 		cin.getline(msg_out, 1024);
 
-		if(strcmp(msg_out, "exit") == 0)
-		{
-			pthread_kill(tid, SIGKILL);	
-			break;
-		}
-		else
-		{		
 			sendMessage(nickname);
 			sendMessage(msg_out);
-		}
+
+		if(strcmp(msg_out, "exit") == 0)
+			break;	
 	}
-
-
-	pthread_join(tid, NULL);
 
 	close(sockfd);
 	exit(0);

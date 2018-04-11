@@ -20,7 +20,7 @@ char* receiveMessage(int client);
 void* serveClient(void* arg);
 void sendMessage(char* msg, int client);
 
-int server_sockfd, server_len, client_sockfd[MAXCLIENT], parameter[MAXCLIENT];
+int server_sockfd, server_len, client_sockfd[MAXCLIENT], parameter[MAXCLIENT], active[MAXCLIENT];
 sockaddr_in server_address;
 pthread_t tid[MAXCLIENT];
 char* username[MAXCLIENT];
@@ -41,6 +41,7 @@ int main()
 			client_sockfd[i] = accept(server_sockfd, (sockaddr *)&client_address, (unsigned int *)&client_len);
 
 			parameter[i] = i;
+			active[i] = 1;
 			pthread_create(&tid[i], NULL, serveClient, (void*)&parameter[i]);
 
 		}
@@ -65,6 +66,10 @@ void* serveClient(void* arg)
 	{
 		nickname = receiveMessage(client_sockfd[n]);
 		msg_in = receiveMessage(client_sockfd[n]);
+
+		if(strcmp(msg_in, "exit") == 0)
+			break;	
+
 		for(int i = 0; i < MAXCLIENT; i++)
 			if(i != n)
 			{
@@ -74,6 +79,7 @@ void* serveClient(void* arg)
 			}
 	}
 
+	shutdown(client_sockfd[n], SHUT_RDWR);
 	close(client_sockfd[n]);
 
 }
