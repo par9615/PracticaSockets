@@ -31,13 +31,13 @@ int main()
 	sockaddr_in client_address;
 
 	createServer(9734);
+	printf("server waiting\n");
 
 	while(1)
 	{
 
 		for(int i = 0; i < MAXCLIENT; i++)
 		{
-			printf("server waiting\n");
 			client_sockfd[i] = accept(server_sockfd, (sockaddr *)&client_address, (unsigned int *)&client_len);
 
 			parameter[i] = i;
@@ -60,7 +60,6 @@ void* serveClient(void* arg)
 
 	nickname = receiveMessage(client_sockfd[n]);
 	username[n] = nickname;
-	cout<<"El nickname del cliente "<<n<<" es "<<username[n]<<endl;
 
 	while(1)
 	{
@@ -73,7 +72,6 @@ void* serveClient(void* arg)
 		for(int i = 0; i < MAXCLIENT; i++)
 			if(i != n)
 			{
-				cout<<"entra"<<endl;
 				sendMessage(nickname, client_sockfd[i]);	
 				sendMessage(msg_in, client_sockfd[i]);		
 			}
